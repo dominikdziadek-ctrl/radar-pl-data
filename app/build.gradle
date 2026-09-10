@@ -1,0 +1,8 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'pl.radar.offline'
+ compileSdk 35
+ defaultConfig { applicationId 'pl.radar.offline'; minSdk 26; targetSdk 35; versionCode 4; versionName '0.4.0' }
+ signingConfigs { debug { storeFile file('../signing/debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

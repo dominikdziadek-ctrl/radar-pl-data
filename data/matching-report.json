@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-09-09T20:04:03Z",
+  "stats": {
+    "fixed_ambiguous_or_missing": 270,
+    "fixed_node_known": 252,
+    "fixed_known": 134,
+    "fixed_no_close_road": 91,
+    "fixed_conflict": 4,
+    "opp_directions_known": 209,
+    "opp_records_known": 114,
+    "opp_unknown": 23
+  },
+  "fixedKnown": 386,
+  "oppKnown": 114,
+  "total": 636,
+  "note": "Computed matches, not field-verified signs; absence of a limit does not imply absence of restriction."
+}
