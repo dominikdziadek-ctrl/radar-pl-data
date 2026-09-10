@@ -1,0 +1,86 @@
+name: Update radar data
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      refresh_osm:
+        description: Refresh OSM limits during this run
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: radar-data-publisher
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Download and validate CANARD
+        env:
+          RADARPL_USER_AGENT: RadarPL/0.4 non-commercial updater (${{ github.server_url }}/${{ github.repository }})
+        run: |
+          python3 tools/build_release.py
+          cp public/canard.json app/src/main/assets/canard.json
+
+      - name: Decide whether to refresh OSM
+        id: calendar
+        env:
+          FORCE_OSM: ${{ inputs.refresh_osm || 'false' }}
+        run: |
+          if [ "$(date -u +%u)" = "7" ] || [ "$FORCE_OSM" = "true" ]; then
+            echo "refresh_osm=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "refresh_osm=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Refresh and match OSM limits
+        if: steps.calendar.outputs.refresh_osm == 'true'
+        env:
+          RADARPL_USER_AGENT: RadarPL/0.4 non-commercial updater (${{ github.server_url }}/${{ github.repository }})
+        run: |
+          python3 tools/fetch_osm.py --refresh
+          python3 tools/assemble_evidence.py
+          python3 tools/match_limits.py
+          python3 tools/build_release.py --canard public/canard.json
+
+      - name: Run data tests
+        run: python3 -m unittest tests.test_release tests.test_matching
+
+      - name: Save validated snapshot history
+        run: |
+          git config user.name "radar-pl-data-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public app/src/main/assets/canard.json app/src/main/assets/osm-limits.json data/matching-report.json
+          git diff --cached --quiet || git commit -m "Update validated radar data"
+          git push
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static update files
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
