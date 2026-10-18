@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-10-11T08:58:36Z",
+  "timestamp": "2026-10-18T07:15:43Z",
   "stats": {
-    "fixed_ambiguous_or_missing": 266,
-    "fixed_node_known": 249,
-    "fixed_known": 133,
-    "fixed_no_close_road": 88,
+    "fixed_ambiguous_or_missing": 274,
+    "fixed_node_known": 256,
+    "fixed_known": 134,
+    "fixed_no_close_road": 89,
     "fixed_conflict": 4,
     "opp_directions_known": 204,
     "opp_records_known": 110,
     "opp_unknown": 27
   },
-  "fixedKnown": 382,
+  "fixedKnown": 390,
   "oppKnown": 110,
-  "total": 628,
+  "total": 638,
   "note": "Computed matches, not field-verified signs; absence of a limit does not imply absence of restriction."
 }
